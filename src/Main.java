@@ -3,6 +3,7 @@ import javax.swing.*; // JPanel
 
 import javax.swing.JFrame;
 
+// git push --force origin main - only do this if changes were made somewhere else
 // https://introcs.cs.princeton.edu/java/11cheatsheet/
 
 public class Main {
@@ -25,8 +26,6 @@ public class Main {
 
                 g.setColor(Color.RED);
                 g.fillRect(100, 100, 200, 200);
-
-                repaint();
 
                 g.setColor(Color.GREEN);
                 g.fillRect(200, 600, 100, 100);
