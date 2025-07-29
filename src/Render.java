@@ -4,16 +4,26 @@ import java.awt.event.*; // KeyEvent
 
 import javax.swing.JFrame;
 
-public class Render extends JPanel implements KeyListener
+public class Render extends JPanel implements KeyListener, ActionListener
 {
-    // Position for the Rectangle object
+    // Attributes for the circle object
     int xPos = 100;
     int yPos = 100;
+    int diameter = 100;
+
+    // This will be used in multiple functions
+    JFrame window;
+
+    // These are the key states
+    boolean left, right, down, up, close;
+
+    // This is timer that would update a frame every 16 milliseconds
+    Timer timer;
 
     public Render()
     {
         // Creating window using the JFrame class
-        JFrame window = new JFrame("Untitled Game");
+        window = new JFrame("Untitled Game");
         window.setSize(800, 800);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -27,55 +37,71 @@ public class Render extends JPanel implements KeyListener
          */
         this.setFocusable(true);
         this.addKeyListener(this);
+
+        // Instantiated timer to start updating frames (60 fps)
+        timer = new Timer(16, this);
+        timer.start();
     }
 
     protected void paintComponent(Graphics graphic)
     {
         super.paintComponent(graphic);
 
+        graphic.drawOval(xPos, yPos, diameter, diameter);
+
         graphic.setColor(Color.GREEN);
-        graphic.fillRect(xPos, yPos, 100, 100);
-
-        //graphic.setColor(Color.CYAN);
-        //graphic.fillRect(300, 300, 50, 50);
-
+        graphic.fillOval(xPos, yPos, diameter, diameter);
     }
 
-    public void keyPressed(KeyEvent event)
+    // This function would update the object every frame
+    public void actionPerformed(ActionEvent action)
     {
-        int userKey = event.getKeyCode();
+        if(left)  { xPos -= 10;       }
+        if(right) { xPos += 10;       }
+        if(down)  { yPos += 10;       }
+        if(up)    { yPos -= 10;       }
+        if(close) { window.dispose(); }
 
-        if( userKey == KeyEvent.VK_LEFT)
-        {
-            xPos -= 10;
-        }
-
-        if(userKey == KeyEvent.VK_RIGHT)
-        {
-            xPos += 10;
-        }
-
-        if(userKey == KeyEvent.VK_DOWN)
-        {
-            yPos += 10;
-        }
-
-        if( userKey == KeyEvent.VK_UP)
-        {
-            yPos -= 10;
-        }
-
-        // Using this to change buffer on the screen
-        // The screen is updating everytime a key is pressed
+        /*
+         * Using this to change buffer on the screen
+         * The screen is updating everytime a key is pressed
+         */ 
         repaint();
     }
+
     /*
-     * These are here to avoid compiler error
-     * Reason, using impelment keyword which
+     * This function would determine which key is presssed
+     * which would satisfy one of the conditions for the 
+     * actionPerformed() function
+     */ 
+    public void keyPressed(KeyEvent event)
+    {
+        switch (event.getKeyCode())
+        {
+            case KeyEvent.VK_LEFT:   left  = true; break;
+            case KeyEvent.VK_RIGHT:  right = true; break;
+            case KeyEvent.VK_DOWN:   down  = true; break;
+            case KeyEvent.VK_UP:     up    = true; break;
+            case KeyEvent.VK_ESCAPE: close = true; break;
+        }
+    }
+
+    public void keyReleased(KeyEvent event)
+    {
+        switch(event.getKeyCode())
+        {
+            case KeyEvent.VK_LEFT:  left = false; break;
+            case KeyEvent.VK_RIGHT: right = false; break;
+            case KeyEvent.VK_DOWN:  down = false; break;
+            case KeyEvent.VK_UP:    up = false; break;
+        }
+    }
+    /*
+     * These are here to avoid a compiler error
+     * Reason, using the impelment keyword which
      * forces me to "define" these functions
      * from the keyListener class
-     * public void keyReleased(KeyEvent event) {}
      */
-    public void keyReleased(KeyEvent event) {}
+    
     public void keyTyped(KeyEvent event) {}
 }
