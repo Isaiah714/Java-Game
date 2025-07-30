@@ -1,107 +1,106 @@
-import javax.swing.*;    // JPanel 
+//import javax.swing.*;    // JPanel 
 import java.awt.*;       // Graphics, JFrame
-import java.awt.event.*; // KeyEvent
+import javax.swing.JPanel;
+import java.awt.Dimension;
+import java.awt.Color;
 
-import javax.swing.JFrame;
+// levitation, bad dreams, motion blur
 
-public class Render extends JPanel implements KeyListener, ActionListener
+public class Render extends JPanel implements Runnable
 {
-    // Attributes for the circle object
-    int xPos = 100;
-    int yPos = 100;
-    int diameter = 100;
+    // Screen Attributes
+    private final int originalTileSize = 16;
+    private final int scale = 3;
 
-    // This will be used in multiple functions
-    JFrame window;
+    private final int tileSize = originalTileSize * scale;
+    private final int maxScreenColumns = 16;
+    private final int maxScreenRows = 12;
+    private final int screenWidth = tileSize * maxScreenRows;
+    private final int screenHeight = tileSize * maxScreenColumns;
+    Control key = new Control();
 
-    // These are the key states
-    boolean left, right, down, up, close;
+    // Allows the program to keep running, very useful
+    Thread gameThread;
 
-    // This is timer that would update a frame every 16 milliseconds
-    Timer timer;
+    // FPS
+    private int fps = 60;
 
     public Render()
     {
-        // Creating window using the JFrame class
-        window = new JFrame("Untitled Game");
-        window.setSize(800, 800);
-        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setPreferredSize(new Dimension(screenWidth, screenHeight));
+        this.setBackground(Color.BLACK);
+        this.setDoubleBuffered(true);
 
-        // The "this" keyword allows a JPanel object to this window
-        window.add(this);
-        window.setVisible(true);
+        this.addKeyListener(key);
 
         /* 
          * setFocusable points to the current object that being
          * interacted with keyboard input
          */
         this.setFocusable(true);
-        this.addKeyListener(this);
+    }
 
-        // Instantiated timer to start updating frames (60 fps)
-        timer = new Timer(16, this);
-        timer.start();
+    public void updatePlayer()
+    {
+        if(key.up == true)    {key.yPos -= key.speedPos;}
+        if(key.down == true)  {key.yPos += key.speedPos;}
+        if(key.left == true)  {key.xPos -= key.speedPos;}
+        if(key.right == true) {key.xPos += key.speedPos;}
+    }
+
+    public void startGameRendering()
+    {
+        // Passing render object into the constructor
+        gameThread = new Thread(this);
+        gameThread.start();
+    }
+
+    public void run()
+    {
+        double frameInterval = 1000000000/fps;
+        double nextFrame = System.nanoTime() + frameInterval;
+
+        while(gameThread != null)
+        {
+            updatePlayer();
+
+            repaint();
+
+            // Forced to use try catch block that was insisted by javac.
+            try
+            {
+                double remainingTimeToNextFrame = nextFrame - System.nanoTime();
+                remainingTimeToNextFrame = remainingTimeToNextFrame/1000000;
+
+                if(remainingTimeToNextFrame < 0)
+                {
+                    remainingTimeToNextFrame = 0;
+                }
+
+                Thread.sleep((long) remainingTimeToNextFrame);
+
+                nextFrame += frameInterval;
+            } 
+            catch (InterruptedException e)
+            {
+                e.getStackTrace();
+            }
+            
+        }
     }
 
     protected void paintComponent(Graphics graphic)
     {
         super.paintComponent(graphic);
 
-        graphic.drawOval(xPos, yPos, diameter, diameter);
+        Graphics2D graphics2d = (Graphics2D)graphic;
 
-        graphic.setColor(Color.GREEN);
-        graphic.fillOval(xPos, yPos, diameter, diameter);
+        graphics2d.drawOval(key.xPos, key.yPos, 50, 50);
+
+        graphics2d.setColor(Color.GREEN);
+        graphics2d.fillOval(key.xPos, key.yPos, 50, 50);
+
+        // Frees object from memory
+        graphics2d.dispose();
     }
-
-    // This function would update the object every frame
-    public void actionPerformed(ActionEvent action)
-    {
-        if(left)  { xPos -= 10;       }
-        if(right) { xPos += 10;       }
-        if(down)  { yPos += 10;       }
-        if(up)    { yPos -= 10;       }
-        if(close) { window.dispose(); }
-
-        /*
-         * Using this to change buffer on the screen
-         * The screen is updating everytime a key is pressed
-         */ 
-        repaint();
-    }
-
-    /*
-     * This function would determine which key is presssed
-     * which would satisfy one of the conditions for the 
-     * actionPerformed() function
-     */ 
-    public void keyPressed(KeyEvent event)
-    {
-        switch (event.getKeyCode())
-        {
-            case KeyEvent.VK_LEFT:   left  = true; break;
-            case KeyEvent.VK_RIGHT:  right = true; break;
-            case KeyEvent.VK_DOWN:   down  = true; break;
-            case KeyEvent.VK_UP:     up    = true; break;
-            case KeyEvent.VK_ESCAPE: close = true; break;
-        }
-    }
-
-    public void keyReleased(KeyEvent event)
-    {
-        switch(event.getKeyCode())
-        {
-            case KeyEvent.VK_LEFT:  left = false; break;
-            case KeyEvent.VK_RIGHT: right = false; break;
-            case KeyEvent.VK_DOWN:  down = false; break;
-            case KeyEvent.VK_UP:    up = false; break;
-        }
-    }
-    /*
-     * These are here to avoid a compiler error
-     * Reason, using the impelment keyword which
-     * forces me to "define" these functions
-     * from the keyListener class
-     */
-    
-    public void keyTyped(KeyEvent event) {}
 }
