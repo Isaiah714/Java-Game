@@ -17,6 +17,7 @@ public class Render extends JPanel implements Runnable
     private final int maxScreenRows = 12;
     private final int screenWidth = tileSize * maxScreenRows;
     private final int screenHeight = tileSize * maxScreenColumns;
+
     Control key = new Control();
 
     // Allows the program to keep running, very useful
