@@ -11,10 +11,13 @@ public class Render extends JPanel implements Runnable
     private final int scale = 3;
 
     private final int tileSize = originalTileSize * scale;
-    private final int maxScreenColumns = 16;
-    private final int maxScreenRows = 12;
+    private final int maxScreenColumns = 20;
+    private final int maxScreenRows = 32;
     private final int screenWidth = tileSize * maxScreenRows;
     private final int screenHeight = tileSize * maxScreenColumns;
+
+    // 1 billion nanoseconds
+    private final long nanoSeconds = 1000000000;
 
     Control key = new Control();
 
@@ -44,12 +47,12 @@ public class Render extends JPanel implements Runnable
         this.setFocusable(true);
     }
 
-    public void updatePlayer()
+    private void updatePlayer()
     {
-        if(key.up == true)         {yPos -= speedPos; System.out.println("up");}
-        else if(key.down == true)  {yPos += speedPos; System.out.println("down");}
-        else if(key.right == true) {xPos += speedPos; System.out.println("right");}
-        else if(key.left == true)  {xPos -= speedPos; System.out.println("left");}
+        if(key.up == true)         {yPos -= speedPos;}
+        else if(key.down == true)  {yPos += speedPos;}
+        else if(key.right == true) {xPos += speedPos;}
+        else if(key.left == true)  {xPos -= speedPos;}
     }
 
     public void startGameRendering()
@@ -61,35 +64,42 @@ public class Render extends JPanel implements Runnable
 
     public void run()
     {
-        double frameInterval = 1000000000/fps;
-        double nextFrame = System.nanoTime() + frameInterval;
+        // Variables that would allow the program to buffer frames properly
+        double frameInterval = nanoSeconds/fps;
+        double delta = 0;
+        long lastTime = System.nanoTime();
+        long currentTime;
+
+        // Variables to calculate fps during runtime
+        long timer = 0;
+        int drawCount = 0;
 
         while(gameThread != null)
         {
-            updatePlayer();
+            currentTime = System.nanoTime();
 
-            repaint();
+            delta += (currentTime - lastTime) / frameInterval;
+            timer += (currentTime - lastTime);
 
-            // Forced to use the try catch block that was insisted by javac.
-            try
+            lastTime = currentTime;
+
+            if(delta >= 1)
             {
-                double remainingTimeToNextFrame = nextFrame - System.nanoTime();
-                remainingTimeToNextFrame = remainingTimeToNextFrame/1000000;
+                updatePlayer();
 
-                if(remainingTimeToNextFrame < 0)
-                {
-                    remainingTimeToNextFrame = 0;
-                }
+                repaint();
 
-                Thread.sleep((long) remainingTimeToNextFrame);
+                delta--;
 
-                nextFrame += frameInterval;
-            } 
-            catch (InterruptedException e)
-            {
-                e.printStackTrace();
+                drawCount++;
             }
-            
+
+            if(timer >= nanoSeconds)
+            {
+                System.out.println("FPS: " + drawCount);
+                drawCount = 0;
+                timer = 0;
+            }
         }
     }
 
