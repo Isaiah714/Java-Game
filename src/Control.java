@@ -1,17 +1,10 @@
 import java.awt.event.KeyEvent;    // KeyEvent
-import java.awt.event.KeyListener; // 
+import java.awt.event.KeyListener;
 
 public class Control implements KeyListener
 {
-
     // These are the key states
     boolean left, right, down, up, close;
-
-    // Updates the position of the object on screen
-    public int xPos = 100;
-    public int yPos = 100;
-    public int speedPos = 10;
-
 
     /*
      * This function would determine which key is presssed

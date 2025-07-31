@@ -1,8 +1,6 @@
 //import javax.swing.*;    // JPanel 
 import java.awt.*;       // Graphics, JFrame
 import javax.swing.JPanel;
-import java.awt.Dimension;
-import java.awt.Color;
 
 // levitation, bad dreams, motion blur
 
@@ -26,6 +24,11 @@ public class Render extends JPanel implements Runnable
     // FPS
     private int fps = 60;
 
+    // Updates the position of the object on screen
+    public int xPos = 100;
+    public int yPos = 100;
+    public int speedPos = 5;
+
     public Render()
     {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -43,10 +46,10 @@ public class Render extends JPanel implements Runnable
 
     public void updatePlayer()
     {
-        if(key.up == true)    {key.yPos -= key.speedPos;}
-        if(key.down == true)  {key.yPos += key.speedPos;}
-        if(key.left == true)  {key.xPos -= key.speedPos;}
-        if(key.right == true) {key.xPos += key.speedPos;}
+        if(key.up == true)         {yPos -= speedPos; System.out.println("up");}
+        else if(key.down == true)  {yPos += speedPos; System.out.println("down");}
+        else if(key.right == true) {xPos += speedPos; System.out.println("right");}
+        else if(key.left == true)  {xPos -= speedPos; System.out.println("left");}
     }
 
     public void startGameRendering()
@@ -67,7 +70,7 @@ public class Render extends JPanel implements Runnable
 
             repaint();
 
-            // Forced to use try catch block that was insisted by javac.
+            // Forced to use the try catch block that was insisted by javac.
             try
             {
                 double remainingTimeToNextFrame = nextFrame - System.nanoTime();
@@ -84,22 +87,23 @@ public class Render extends JPanel implements Runnable
             } 
             catch (InterruptedException e)
             {
-                e.getStackTrace();
+                e.printStackTrace();
             }
             
         }
     }
 
+    // This function gets called internally by repaint()
     protected void paintComponent(Graphics graphic)
     {
         super.paintComponent(graphic);
 
         Graphics2D graphics2d = (Graphics2D)graphic;
 
-        graphics2d.drawOval(key.xPos, key.yPos, 50, 50);
+        //graphics2d.drawOval(xPos, yPos, 50, 50);
 
         graphics2d.setColor(Color.GREEN);
-        graphics2d.fillOval(key.xPos, key.yPos, 50, 50);
+        graphics2d.fillOval(xPos, yPos, 50, 50);
 
         // Frees object from memory
         graphics2d.dispose();
