@@ -1,11 +1,18 @@
-//import javax.swing.*;    // JPanel 
-import java.awt.*;       // Graphics, JFrame
-import javax.swing.JPanel;
+import javax.swing.JFrame;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Canvas;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 
-// levitation, bad dreams, motion blur
-
-public class Render extends JPanel implements Runnable
+public class Render extends Canvas implements Runnable
 {
+    // Crearting window object
+    JFrame window;
+
     // Screen Attributes
     private final int originalTileSize = 16;
     private final int scale = 3;
@@ -16,29 +23,39 @@ public class Render extends JPanel implements Runnable
     private final int screenWidth = tileSize * maxScreenRows;
     private final int screenHeight = tileSize * maxScreenColumns;
 
+    private BufferedImage imageWindow = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_RGB);
+    private int[] interpol = ((DataBufferInt)imageWindow.getRaster().getDataBuffer()).getData();
+    private int frameCount;
+
     // 1 billion nanoseconds
     private final long nanoSeconds = 1000000000;
 
     Control key = new Control();
 
     // Allows the program to keep running, very useful
-    Thread gameThread;
+    private Thread gameThread;
 
     // FPS
-    private int fps = 60;
-
-    // Updates the position of the object on screen
-    public int xPos = 100;
-    public int yPos = 100;
-    public int speedPos = 5;
+    private double fps = 60.0;
 
     public Render()
     {
+        window = new JFrame();
+        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        window.setResizable(false);
+        window.setTitle("Untitled Game");
+
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.BLACK);
-        this.setDoubleBuffered(true);
+
+        window.add(this);
+        window.pack();
 
         this.addKeyListener(key);
+
+        window.setLocationRelativeTo(null);
+
+        window.setVisible(true);
 
         /* 
          * setFocusable points to the current object that being
@@ -49,10 +66,11 @@ public class Render extends JPanel implements Runnable
 
     private void updatePlayer()
     {
-        if(key.up == true)         {yPos -= speedPos;}
-        else if(key.down == true)  {yPos += speedPos;}
-        else if(key.right == true) {xPos += speedPos;}
-        else if(key.left == true)  {xPos -= speedPos;}
+        if(key.up == true)         {key.yPos -= key.speedPos;}
+        if(key.down == true)       {key.yPos += key.speedPos;}
+        if(key.right == true)      {key.xPos += key.speedPos;}
+        if(key.left == true)       {key.xPos -= key.speedPos;}
+        if(key.close == true)      {window.dispose(); System.exit(1);}
     }
 
     public void startGameRendering()
@@ -62,60 +80,55 @@ public class Render extends JPanel implements Runnable
         gameThread.start();
     }
 
-    public void run()
+    public void updateFrames()
     {
-        // Variables that would allow the program to buffer frames properly
-        double frameInterval = nanoSeconds/fps;
-        double delta = 0;
-        long lastTime = System.nanoTime();
-        long currentTime;
-
-        // Variables to calculate fps during runtime
-        long timer = 0;
-        int drawCount = 0;
-
-        while(gameThread != null)
-        {
-            currentTime = System.nanoTime();
-
-            delta += (currentTime - lastTime) / frameInterval;
-            timer += (currentTime - lastTime);
-
-            lastTime = currentTime;
-
-            if(delta >= 1)
-            {
-                updatePlayer();
-
-                repaint();
-
-                delta--;
-
-                drawCount++;
-            }
-
-            if(timer >= nanoSeconds)
-            {
-                System.out.println("FPS: " + drawCount);
-                drawCount = 0;
-                timer = 0;
-            }
-        }
+        frameCount++;
     }
 
-    // This function gets called internally by repaint()
-    protected void paintComponent(Graphics graphic)
+    public void draw()
     {
-        super.paintComponent(graphic);
+        BufferStrategy bs = getBufferStrategy();
 
-        Graphics2D graphics2d = (Graphics2D)graphic;
+        if(bs == null)
+        {
+            createBufferStrategy(3);
+            return;
+        }
 
-        //graphics2d.drawOval(xPos, yPos, 50, 50);
+        for( int i = 0; i < interpol.length; i++)
+        {
+            interpol[i] = i + frameCount;
+        }
 
-        graphics2d.setColor(Color.GREEN);
-        graphics2d.fillOval(xPos, yPos, 50, 50);
+        /*Graphics g = imageWindow.getGraphics();
+        g.setColor(Color.CYAN);
+        g.fillRect(100, 100, 50, 50);
+        g.dispose();*/
 
-        // Frees object from memory
-        graphics2d.dispose();
+        // Setting up the window to show render graphics on the screen
+        Graphics graphicObject = bs.getDrawGraphics();
+        graphicObject.drawImage(imageWindow, 0, 0, window);
+        graphicObject.dispose();
+        bs.show();
+    }
+
+    public void run()
+    {
+        long lastFrame = System.nanoTime();
+        double delta = 0.0;
+        double frameInterval = nanoSeconds / fps;
+        long currentFrame;
+        while(gameThread != null)
+        {
+            currentFrame = System.nanoTime();
+            delta = (currentFrame - lastFrame) / frameInterval;
+            while(delta >= 1)
+            {
+                updatePlayer();
+                updateFrames();
+                delta -= 1;
+            }
+            draw();
+        }
     }
 }

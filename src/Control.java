@@ -6,6 +6,11 @@ public class Control implements KeyListener
     // These are the key states
     boolean left, right, down, up, close;
 
+    // Updates the position of the object on screen
+    public int xPos = 100;
+    public int yPos = 100;
+    public int speedPos = 10;
+
     /*
      * This function would determine which key is presssed
      * which would satisfy one of the conditions for the 
@@ -13,24 +18,23 @@ public class Control implements KeyListener
      */ 
     public void keyPressed(KeyEvent event)
     {
-        switch(event.getKeyCode())
-        {
-            case KeyEvent.VK_W: up = true;
-            case KeyEvent.VK_S: down = true;
-            case KeyEvent.VK_D: right = true;
-            case KeyEvent.VK_A: left = true;
-        }
-    }
+        int keycode = event.getKeyCode();
 
+        if(keycode == KeyEvent.VK_W) {up = true;}
+        if(keycode == KeyEvent.VK_S) {down = true;}
+        if(keycode == KeyEvent.VK_D) {right = true;}
+        if(keycode == KeyEvent.VK_A) {left = true;}
+        if(keycode == KeyEvent.VK_ESCAPE) {close = true;}
+    }
     public void keyReleased(KeyEvent event)
     {
-        switch(event.getKeyCode())
-        {
-            case KeyEvent.VK_W: up = false;
-            case KeyEvent.VK_S: down = false;
-            case KeyEvent.VK_D: right = false;
-            case KeyEvent.VK_A: left = false;
-        }
+        int keycode = event.getKeyCode();
+
+        if(keycode == KeyEvent.VK_W) {up = false;}
+        if(keycode == KeyEvent.VK_S) {down = false;}
+        if(keycode == KeyEvent.VK_D) {right = false;}
+        if(keycode == KeyEvent.VK_A) {left = false;}
+        if(keycode == KeyEvent.VK_ESCAPE) {close = false;}
     }
 
     /*
