@@ -7,6 +7,6 @@ public class Main {
 
         Render gameWindow = new Render();
 
-        gameWindow.startGameRendering();
+        gameWindow.startGame();
     }
 }
