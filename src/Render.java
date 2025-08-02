@@ -1,5 +1,5 @@
 import javax.swing.JFrame;
-import java.awt.BorderLayout;
+//import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Canvas;
 import java.awt.Dimension;
@@ -24,19 +24,21 @@ public class Render extends Canvas implements Runnable
     private final int screenHeight = tileSize * maxScreenColumns;
 
     private BufferedImage imageWindow = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_RGB);
-    private int[] interpol = ((DataBufferInt)imageWindow.getRaster().getDataBuffer()).getData();
-    private int frameCount;
+
+    // pixels tells the BufferImage class what to display
+    private int[] pixelBuffer = ((DataBufferInt)imageWindow.getRaster().getDataBuffer()).getData();
+    //private int ticks;
 
     // 1 billion nanoseconds
-    private final long nanoSeconds = 1000000000;
+    //private final long nanoSeconds = 1000000000;
 
     Control key = new Control();
 
     // Allows the program to keep running, very useful
     private Thread gameThread;
 
-    // FPS
-    private double fps = 60.0;
+    // Creating a Screen object
+    Screen screen = new Screen(screenWidth, screenHeight);
 
     public Render()
     {
@@ -80,12 +82,12 @@ public class Render extends Canvas implements Runnable
         gameThread.start();
     }
 
-    public void updateFrames()
+    public void ticks()
     {
-        frameCount++;
+ 
     }
 
-    public void draw()
+    public void render()
     {
         BufferStrategy bs = getBufferStrategy();
 
@@ -95,40 +97,64 @@ public class Render extends Canvas implements Runnable
             return;
         }
 
-        for( int i = 0; i < interpol.length; i++)
+        screen.clear();
+        screen.renderScreen();
+
+        // Renders pixels across the entire window
+        for(int i = 0; i < pixelBuffer.length; i++)
         {
-            interpol[i] = i + frameCount;
+            pixelBuffer[i] = screen.pixels[i];
         }
 
         /*Graphics g = imageWindow.getGraphics();
         g.setColor(Color.CYAN);
-        g.fillRect(100, 100, 50, 50);
+        g.fillRect(key.xPos, key.yPos, 50, 50);
         g.dispose();*/
 
         // Setting up the window to show render graphics on the screen
         Graphics graphicObject = bs.getDrawGraphics();
+        graphicObject.fillRect(0, 0, getWidth(), getHeight());
+
+        // drawImage would actually allow us to render the pixels onto the screen
         graphicObject.drawImage(imageWindow, 0, 0, window);
+
         graphicObject.dispose();
         bs.show();
+        
     }
 
     public void run()
     {
-        long lastFrame = System.nanoTime();
-        double delta = 0.0;
-        double frameInterval = nanoSeconds / fps;
-        long currentFrame;
+        final double fps = 60.0;
+        final long nanoSeconds = 1000000000;
+        long timer = System.currentTimeMillis();
+        double tickInterval = nanoSeconds / fps;
+        double currentTime;
+        double lastTime = System.nanoTime();
+        double delta;
+        int frames = 0;
+        int fpsTicks = 0;
         while(gameThread != null)
         {
-            currentFrame = System.nanoTime();
-            delta = (currentFrame - lastFrame) / frameInterval;
-            while(delta >= 1)
+            currentTime = System.nanoTime();
+            delta = (currentTime - lastTime) / tickInterval;
+            if(delta >= 1)
             {
                 updatePlayer();
-                updateFrames();
-                delta -= 1;
+                ticks();
+                delta--;
+                fpsTicks++;
             }
-            draw();
+            render();
+            frames++;
+
+            if(System.currentTimeMillis() - timer > 1000)
+            {
+                timer += 1000;
+                System.out.println(fpsTicks + " ups, " + frames + " fps");
+                frames = 0;
+                fpsTicks = 0;
+            }
         }
     }
 }
