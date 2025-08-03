@@ -5,6 +5,7 @@ public class Sprite {
     private SpriteSheet sheet;
 
     public static Sprite grass = new Sprite(SpriteSheet.spriteSize, 0, 0, SpriteSheet.grassTiles);
+    public static Sprite voidSprite = new Sprite(32, 0xffffff);
 
     public Sprite(int size, int x, int y, SpriteSheet sheet)
     {
@@ -14,6 +15,21 @@ public class Sprite {
         this.sheet = sheet;
         this.pixels = new int[size * size];
         loadSprite();
+    }
+
+    public Sprite(int size, int color)
+    {
+        sizeOfSprite = size;
+        pixels = new int[sizeOfSprite * sizeOfSprite];
+        setColor(color);
+    }
+
+    private void setColor(int color)
+    {
+        for(int i = 0; i < sizeOfSprite * sizeOfSprite; i++)
+        {
+            pixels[i] = color;
+        }
     }
 
     private void loadSprite()

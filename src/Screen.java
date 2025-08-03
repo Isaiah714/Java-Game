@@ -1,14 +1,15 @@
 import java.util.Random;
+
 public class Screen {
+    private int xSprite, ySprite;
+    private final int spriteScale = 4;
     private final int MAPSIZE = 64;
     //private final int SPRITESIZE = 6;
 
-    private int width, height;
+    public int width, height;
     public int[] pixels;
     public int[] tiles = new int[MAPSIZE * MAPSIZE];
-
-    private int xSprite, ySprite;
-    private final int spriteScale = 4;
+    public int xOffset, yOffset;
 
     Random random = new Random();
 
@@ -79,6 +80,31 @@ public class Screen {
                     pixels[xMovePixel + ((yMovePixel) * width)] = Sprite.grass.pixels[(xSprite & SpriteSheet.spriteSize - 1) + ((ySprite & SpriteSheet.spriteSize - 1) * Sprite.grass.sizeOfSprite)];
                 }
             }
+        }
+
+        public void renderTile(int xPosition, int yPosition, Tile tile)
+        {
+            xPosition -= xOffset;
+            yPosition -= yOffset;
+            for(int y = 0; y < tile.sprite.sizeOfSprite; y++)
+            {
+                int yabsoulte  = y + yPosition;
+                for(int x = 0; x < tile.sprite.sizeOfSprite; x++)
+                {
+                    int xabsoulte  = x + xPosition;
+                    if(xabsoulte < 0 || xabsoulte >= width || yabsoulte < 0 || yabsoulte >= height)
+                    {
+                        break;
+                    }
+                    pixels[xabsoulte + (yabsoulte * width)] = tile.sprite.pixels[x + (y * tile.sprite.sizeOfSprite)];
+                }
+            }
+        }
+        
+        public void offSet(int xOffSet, int yOffSet)
+        {
+            this.xOffset = xOffSet;
+            this.yOffset = yOffSet;
         }
 }
 

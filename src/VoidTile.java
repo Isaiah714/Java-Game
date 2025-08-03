@@ -1,5 +1,5 @@
-public class GrassTile extends Tile {
-    GrassTile(Sprite sprite)
+public class VoidTile extends Tile {
+    public VoidTile(Sprite sprite)
     {
         super(sprite);
     }

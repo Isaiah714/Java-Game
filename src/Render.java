@@ -31,6 +31,9 @@ public class Render extends Canvas implements Runnable
     // Creating a Screen object
     private Screen screen = new Screen(screenWidth, screenHeight);
 
+    // Creating a Level object
+    private Level level = new Level(64, 64);
+
     int xTick, yTick;
 
     public Render()
@@ -69,10 +72,10 @@ public class Render extends Canvas implements Runnable
 
     private void playerTick()
     {
-        if(key.up == true)         {key.yPos -= key.speedPos; yTick++;}
-        if(key.down == true)       {key.yPos += key.speedPos; yTick--;}
-        if(key.right == true)      {key.xPos += key.speedPos; xTick--;}
-        if(key.left == true)       {key.xPos -= key.speedPos; xTick++;}
+        if(key.up == true)         {key.yPos -= key.speedPos; yTick--;}
+        if(key.down == true)       {key.yPos += key.speedPos; yTick++;}
+        if(key.right == true)      {key.xPos += key.speedPos; xTick++;}
+        if(key.left == true)       {key.xPos -= key.speedPos; xTick--;}
         if(key.close == true)      {window.dispose(); System.exit(1);}
     }
 
@@ -102,7 +105,7 @@ public class Render extends Canvas implements Runnable
         }
 
         screen.clear();
-        screen.renderScreen(xTick, yTick);
+        level.render(xTick, yTick, screen);
 
         /*
          * This would pass all the data from the screen.pixels
