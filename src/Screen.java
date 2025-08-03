@@ -1,12 +1,14 @@
 import java.util.Random;
-
 public class Screen {
+    private final int MAPSIZE = 64;
+    //private final int SPRITESIZE = 6;
+
     private int width, height;
     public int[] pixels;
-    public int[] tiles = new int[64 * 64];
+    public int[] tiles = new int[MAPSIZE * MAPSIZE];
 
-    private final int MAPSIZE = 64;
-    private final int SPRITESIZE = 6;
+    private int xSprite, ySprite;
+    private final int spriteScale = 4;
 
     Random random = new Random();
 
@@ -46,14 +48,24 @@ public class Screen {
                  * yy is in charge of moving the tiles onto the window.
                  * The yOffset allows the program to animate the tiles.
                  */ 
-                int yy = y + yOffSet;
+                //int yy = y + yOffSet;
+
+                // Scales the sprite into the desired size
+                ySprite = y / spriteScale;
+                int yMovePixel = y + yOffSet;
+                if( yMovePixel < 0 || yMovePixel >= height) continue;
                 for(int x = 0; x < width; x++)
                 {
                     /*
                      * xx is in charge of moving the tiles onto the window
                      * The xOffSet allows the program to animate the tiles.
                      */ 
-                    int xx = x + xOffSet;
+                    //int xx = x + xOffSet;
+
+                    // Scales the sprite into the desired size
+                    xSprite = x / spriteScale;
+                    int xMovePixel = x + xOffSet;
+                    if(xMovePixel < 0 || xMovePixel >= width) continue;
                     /*
                      * tileIndex allows the program to move each tile from the pixels array.
                      * xx >> 5 is equavalent to xx / 2^5 and & checks if xx is out of bounds
@@ -63,8 +75,8 @@ public class Screen {
                      * follows the same formula for pixels[x + (y * width)] in drawing 
                      * every pixel in their respective columns.
                      */ 
-                    int tileIndex = ((xx >> SPRITESIZE) & MAPSIZE - 1) + ((yy >> SPRITESIZE) & MAPSIZE - 1) * MAPSIZE;
-                    pixels[x + (y * width)] = tiles[tileIndex];
+                    //int tileIndex = ((xx >> SPRITESIZE) & MAPSIZE - 1) + ((yy >> SPRITESIZE) & MAPSIZE - 1) * MAPSIZE;
+                    pixels[xMovePixel + ((yMovePixel) * width)] = Sprite.grass.pixels[(xSprite & SpriteSheet.spriteSize - 1) + ((ySprite & SpriteSheet.spriteSize - 1) * Sprite.grass.sizeOfSprite)];
                 }
             }
         }

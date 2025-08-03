@@ -14,14 +14,8 @@ public class Render extends Canvas implements Runnable
     JFrame window;
 
     // Screen Attributes
-    private final int originalTileSize = 16;
-    private final int scale = 3;
-
-    private final int tileSize = originalTileSize * scale;
-    private final int maxScreenColumns = 20;
-    private final int maxScreenRows = 32;
-    private final int screenWidth = tileSize * maxScreenRows;
-    private final int screenHeight = tileSize * maxScreenColumns;
+    private final int screenWidth = 1500;
+    private final int screenHeight = 1000;
 
     private BufferedImage imageWindow = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_RGB);
 
@@ -75,10 +69,10 @@ public class Render extends Canvas implements Runnable
 
     private void playerTick()
     {
-        if(key.up == true)         {key.yPos -= key.speedPos; yTick--;}
-        if(key.down == true)       {key.yPos += key.speedPos; yTick++;}
-        if(key.right == true)      {key.xPos += key.speedPos; xTick++;}
-        if(key.left == true)       {key.xPos -= key.speedPos; xTick--;}
+        if(key.up == true)         {key.yPos -= key.speedPos; yTick++;}
+        if(key.down == true)       {key.yPos += key.speedPos; yTick--;}
+        if(key.right == true)      {key.xPos += key.speedPos; xTick--;}
+        if(key.left == true)       {key.xPos -= key.speedPos; xTick++;}
         if(key.close == true)      {window.dispose(); System.exit(1);}
     }
 

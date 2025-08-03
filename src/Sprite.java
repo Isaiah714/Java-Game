@@ -1,10 +1,10 @@
 public class Sprite {
-    private int sizeOfSprite;
+    public int sizeOfSprite;
+    public int[] pixels;
     private int x, y;
-    private int[] pixels;
     private SpriteSheet sheet;
 
-    public static Sprite grass = new Sprite(16, 0, 0, null);
+    public static Sprite grass = new Sprite(SpriteSheet.spriteSize, 0, 0, SpriteSheet.grassTiles);
 
     public Sprite(int size, int x, int y, SpriteSheet sheet)
     {
@@ -12,6 +12,7 @@ public class Sprite {
         this.x = x * size;
         this.y = y * size;
         this.sheet = sheet;
+        this.pixels = new int[size * size];
         loadSprite();
     }
 
@@ -25,5 +26,4 @@ public class Sprite {
             }
         }
     }
-
 }
