@@ -47,44 +47,66 @@ public class Level {
 	}
 
 	private void loadLevel() {
+		int size = 160;
 		int ID = 0;
-		int xOffset = 0;
-		int yOffset = 0;
+		int xPixelPos = 0;
+		int yPixelPos = 0;
+		int xpixelOffset = 0;
+		int ypixelOffset = 0;
 		for (int i = 0; i < this.tileIDs.length; i++) {
 			ID = tileIDs[i];
+			if (xpixelOffset >= 9) {
+				xpixelOffset = 0;
+				ypixelOffset++;
+			}
+			if (ypixelOffset >= 9) {
+				ypixelOffset = 0;
+			}
 			switch (ID) {
 				case 0:
+					System.out.println("0");
 					for (int xx = 0; xx < SPRITESIZE; xx++) {
 						for (int yy = 0; yy < SPRITESIZE; yy++) {
-							tiles[(yy + yOffset) + (xx + xOffset) * SPRITESIZE] = Sprite.smallFlowers.pixels[(yy * SPRITESIZE) + xx];
+							tiles[(xx + xPixelPos) + (yy + yPixelPos) * size] = Sprite.smallFlowers.pixels[(yy * SPRITESIZE) + xx];
 						}
 					}
-					xOffset++;
-					yOffset++;
+					xpixelOffset++;
+					xPixelPos = xpixelOffset * SPRITESIZE;
+					yPixelPos = ypixelOffset * SPRITESIZE;
+					break;
 				case 1:
+					System.out.println("1");
 					for (int xx = 0; xx < SPRITESIZE; xx++) {
 						for (int yy = 0; yy < SPRITESIZE; yy++) {
-							tiles[(yy + yOffset) + (xx + xOffset) * SPRITESIZE] = Sprite.rocks.pixels[(yy * SPRITESIZE) + xx];
+							tiles[(xx + xPixelPos) + (yy + yPixelPos) * size] = Sprite.rocks.pixels[(yy * SPRITESIZE) + xx];
 						}
 					}
-					xOffset++;
-					yOffset++;
+					xpixelOffset++;
+					xPixelPos = xpixelOffset * SPRITESIZE;
+					yPixelPos = ypixelOffset * SPRITESIZE;
+					break;
 				case 2:
+					System.out.println("2");
 					for (int xx = 0; xx < SPRITESIZE; xx++) {
 						for (int yy = 0; yy < SPRITESIZE; yy++) {
-							tiles[(yy + yOffset) + (xx + xOffset) * SPRITESIZE] = Sprite.flowers.pixels[(yy * SPRITESIZE) + xx];
+							tiles[(xx + xPixelPos) + (yy + yPixelPos) * size] = Sprite.flowers.pixels[(yy * SPRITESIZE) + xx];
 						}
 					}
-					xOffset++;
-					yOffset++;
+					xpixelOffset++;
+					xPixelPos = xpixelOffset * SPRITESIZE;
+					yPixelPos = ypixelOffset * SPRITESIZE;
+					break;
 				case 3:
+					System.out.println("3");
 					for (int xx = 0; xx < SPRITESIZE; xx++) {
 						for (int yy = 0; yy < SPRITESIZE; yy++) {
-							tiles[(yy + yOffset) + (xx + xOffset) * SPRITESIZE] = Sprite.grass.pixels[(yy * SPRITESIZE) + xx];
+							tiles[(xx + xPixelPos) + (yy + yPixelPos) * size] = Sprite.grass.pixels[(yy * SPRITESIZE) + xx];
 						}
 					}
-					xOffset++;
-					yOffset++;
+					xpixelOffset++;
+					xPixelPos = xpixelOffset * SPRITESIZE;
+					yPixelPos = ypixelOffset * SPRITESIZE;
+					break;
 			}
 		}
 	}

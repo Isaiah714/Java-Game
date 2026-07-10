@@ -59,7 +59,7 @@ public class Game extends Canvas implements Runnable {
 
 			if (System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;
-				System.out.println(fpsTicks + " ups, " + frames + " fps");
+				System.out.println(fpsTicks + " fps, " + frames + " ups");
 				frames = 0;
 				fpsTicks = 0;
 			}
@@ -109,3 +109,8 @@ public class Game extends Canvas implements Runnable {
 		game.start();
 	}
 }
+/*
+ * for (int ii = 0; ii < Level.flowerField.tileIDs.length; ii++) {
+ * System.out.print(Level.flowerField.tileIDs[ii]);
+ * }
+ */

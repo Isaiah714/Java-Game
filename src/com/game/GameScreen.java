@@ -23,6 +23,7 @@ public class GameScreen {
 		int xTile;
 		int yTile;
 		int tileSprite = 0;
+
 		for (int yScreen = 0; yScreen < this.height; yScreen++) {
 			yWorldPos = yScreen + player.yPos; // Getting camera coordinates (calculating offset)
 			yTile = yWorldPos >> tileScale;
