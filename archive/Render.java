@@ -8,8 +8,7 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
-public class Render extends Canvas implements Runnable
-{
+public class Render extends Canvas implements Runnable {
     // Crearting window object
     JFrame window;
 
@@ -19,9 +18,10 @@ public class Render extends Canvas implements Runnable
 
     private BufferedImage imageWindow = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_RGB);
 
-    // This needs to be declared so this varible can take data from other arrays to display onto the window.
-    private int[] pixelBuffer = ((DataBufferInt)imageWindow.getRaster().getDataBuffer()).getData();
-    //private int ticks;
+    // This needs to be declared so this varible can take data from other arrays to
+    // display onto the window.
+    private int[] pixelBuffer = ((DataBufferInt) imageWindow.getRaster().getDataBuffer()).getData();
+    // private int ticks;
 
     private Control key = new Control();
 
@@ -36,8 +36,7 @@ public class Render extends Canvas implements Runnable
 
     int xTick, yTick;
 
-    public Render()
-    {
+    public Render() {
         window = new JFrame();
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setResizable(false);
@@ -63,43 +62,55 @@ public class Render extends Canvas implements Runnable
         // Also from SE library, use this show the window.
         window.setVisible(true);
 
-        /* 
+        /*
          * setFocusable points to the current object that being
          * interacted with keyboard input
          */
         this.setFocusable(true);
     }
 
-    private void playerTick()
-    {
-        if(key.up == true)         {key.yPos -= key.speedPos; yTick--;}
-        if(key.down == true)       {key.yPos += key.speedPos; yTick++;}
-        if(key.right == true)      {key.xPos += key.speedPos; xTick++;}
-        if(key.left == true)       {key.xPos -= key.speedPos; xTick--;}
-        if(key.close == true)      {window.dispose(); System.exit(1);}
+    private void playerTick() {
+        if (key.up == true) {
+            key.yPos -= key.speedPos;
+            yTick--;
+        }
+        if (key.down == true) {
+            key.yPos += key.speedPos;
+            yTick++;
+        }
+        if (key.right == true) {
+            key.xPos += key.speedPos;
+            xTick++;
+        }
+        if (key.left == true) {
+            key.xPos -= key.speedPos;
+            xTick--;
+        }
+        if (key.close == true) {
+            window.dispose();
+            System.exit(1);
+        }
     }
 
     // This is required to run multiple functions at the same time
-    public void startGame()
-    {
+    public void startGame() {
         // Passing render object into the constructor
         gameThread = new Thread(this);
         gameThread.start();
     }
 
     // This function is what updates the position of the tiles
-    private void ticks()
-    {
-        xTick++;
-        yTick++;
-    }
+    /*
+     * private void ticks() {
+     * xTick++;
+     * yTick++;
+     * }
+     */
 
-    private void render()
-    {
+    private void render() {
         BufferStrategy bs = getBufferStrategy();
 
-        if(bs == null)
-        {
+        if (bs == null) {
             createBufferStrategy(3);
             return;
         }
@@ -109,12 +120,11 @@ public class Render extends Canvas implements Runnable
 
         /*
          * This would pass all the data from the screen.pixels
-         * into pixelBuffer. pixelBuffer would take that data 
-         * and can use that data to actually render onto the 
+         * into pixelBuffer. pixelBuffer would take that data
+         * and can use that data to actually render onto the
          * window.
          */
-        for(int i = 0; i < pixelBuffer.length; i++)
-        {
+        for (int i = 0; i < pixelBuffer.length; i++) {
             pixelBuffer[i] = screen.pixels[i];
         }
 
@@ -127,12 +137,11 @@ public class Render extends Canvas implements Runnable
 
         graphicObject.dispose();
         bs.show();
-        
+
     }
 
     // run is interally called from gameThread.start().
-    public void run()
-    {
+    public void run() {
         final double fps = 60.0;
         final long nanoSeconds = 1000000000;
         long timer = System.currentTimeMillis();
@@ -142,22 +151,19 @@ public class Render extends Canvas implements Runnable
         double delta;
         int frames = 0;
         int fpsTicks = 0;
-        while(gameThread != null)
-        {
+        while (gameThread != null) {
             currentTime = System.nanoTime();
             delta = (currentTime - lastTime) / tickInterval;
-            if(delta >= 1)
-            {
+            if (delta >= 1) {
                 playerTick();
-                //ticks();
+                // ticks();
                 delta--;
                 fpsTicks++;
             }
             render();
             frames++;
 
-            if(System.currentTimeMillis() - timer > 1000)
-            {
+            if (System.currentTimeMillis() - timer > 1000) {
                 timer += 1000;
                 System.out.println(fpsTicks + " ups, " + frames + " fps");
                 frames = 0;
