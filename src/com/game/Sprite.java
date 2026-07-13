@@ -28,8 +28,8 @@ public class Sprite {
 	}
 
 	private void load() {
-		for (int xOffset = 0; xOffset < SIZE; xOffset++) {
-			for (int yOffset = 0; yOffset < SIZE; yOffset++) {
+		for (int yOffset = 0; yOffset < SIZE; yOffset++) {
+			for (int xOffset = 0; xOffset < SIZE; xOffset++) {
 				// This will fill the sprite in a specific cell (16x16 cell) perfect for the
 				// sprite being loaded in (also 16x16).
 				pixels[(yOffset * SIZE) + xOffset] = sheet.pixels[(this.xpixelPos + xOffset)

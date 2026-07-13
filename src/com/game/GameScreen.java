@@ -20,22 +20,37 @@ public class GameScreen {
 	}
 
 	public void renderScreen(Player player) {
+		switch (player.currentLevel) {
+			case FLOWERFIELD:
+				renderMap(Level.flowerField, player);
+				break;
+			
+		
+			default:
+			break;
+		}
+	}
+
+	private void renderMap(Level level, Player player) {
 		int xTile;
 		int yTile;
 		int tileSprite = 0;
 
-		for (int yScreen = 0; yScreen < this.height; yScreen++) {
-			yWorldPos = yScreen + player.yPos; // Getting camera coordinates (calculating offset)
+		for (int row = 0; row < this.height; row++) {
+			yWorldPos = row + player.yPos; // Getting camera coordinates (calculating offset)
 			yTile = yWorldPos >> tileScale;
-			for (int xScreen = 0; xScreen < this.width; xScreen++) {
-				xWorldPos = xScreen + player.xPos; // Getting camera coordinates (calculating offset)
+			for (int col = 0; col < this.width; col++) {
+				xWorldPos = col + player.xPos; // Getting camera coordinates (calculating offset)
 				xTile = xWorldPos >> tileScale;
 				tileIndex = ((yTile & SPRITE_BOUND) + (xTile & SPRITE_BOUND) * Sprite.flowers.SIZE);
 				// tileSprite = tiles[tileIndex & MAPSIZE_BOUND >> 1];
 				// tileSprite = Sprite.grass.pixels[tileIndex];
-				tileSprite = Level.flowerField.tiles[tileIndex];
-				pixels[yScreen * this.width + xScreen] = tileSprite;
+				tileSprite = level.tiles[tileIndex];
+				// row * this.width grabs the entire row and adds the column to get the pixel position in the array
+				pixels[row * this.width + col] = tileSprite;
 			}
 		}
+
+		
 	}
 }

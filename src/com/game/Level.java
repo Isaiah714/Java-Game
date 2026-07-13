@@ -5,18 +5,27 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+enum LevelID {
+	FLOWERFIELD,
+	FOREST,
+	DESERT,
+	ICE,
+	// Add more levels as needed
+}
+
 public class Level {
 	private String filePath;
 	private final int SPRITESIZE = 16;
 
-	public int[] tileIDs;
+	public SpriteID[] tileIDs;
 	public int[] tiles;
 	public static Level flowerField = new Level(10, "/levels/flower_field.txt");
+	//public static Level forest = new Level(10, "/levels/forest.txt");
 
-	public Level(int size, String path) {
+	public Level(int tileQuantity, String path) {
 		this.filePath = path;
-		this.tileIDs = new int[size * size];
-		this.tiles = new int[(size * SPRITESIZE) * (size * SPRITESIZE)];
+		this.tileIDs = new SpriteID[tileQuantity * tileQuantity];
+		this.tiles = new int[(tileQuantity * SPRITESIZE) * (tileQuantity * SPRITESIZE)];
 		parseLevel();
 		loadLevel();
 	}
@@ -35,7 +44,20 @@ public class Level {
 					for (int column = 0; column < width; column++) {
 						char c = line.charAt(column);
 						int tileID = Character.getNumericValue(c);
-						this.tileIDs[(column * width) + row] = tileID; // Saving tile IDs here
+						switch(tileID) {
+							case 0:
+							this.tileIDs[(column * width) + row] = SpriteID.SMALLFLOWERS;
+							break;
+							case 1:
+							this.tileIDs[(column * width) + row] = SpriteID.ROCKS;
+							break;
+							case 2:
+							this.tileIDs[(column * width) + row] = SpriteID.FLOWERS;
+							break;
+							case 3:
+							this.tileIDs[(column * width) + row] = SpriteID.GRASS;
+							break;
+						}
 					}
 					row++;
 				}
@@ -47,8 +69,8 @@ public class Level {
 	}
 
 	private void loadLevel() {
-		int size = 160;
-		int ID = 0;
+		SpriteID ID = null;
+		int rowWidth = 160;
 		int xPixelPos = 0;
 		int yPixelPos = 0;
 		int xpixelOffset = 0;
@@ -63,44 +85,40 @@ public class Level {
 				ypixelOffset = 0;
 			}
 			switch (ID) {
-				case 0:
-					System.out.println("0");
-					for (int xx = 0; xx < SPRITESIZE; xx++) {
-						for (int yy = 0; yy < SPRITESIZE; yy++) {
-							tiles[(xx + xPixelPos) + (yy + yPixelPos) * size] = Sprite.smallFlowers.pixels[(yy * SPRITESIZE) + xx];
+				case SpriteID.SMALLFLOWERS:
+					for (int yy = 0; yy < SPRITESIZE; yy++) {
+						for (int xx = 0; xx < SPRITESIZE; xx++) {
+							tiles[((yPixelPos * rowWidth) + (yy * rowWidth)) + (xx + xPixelPos)] = Sprite.smallFlowers.pixels[(yy * SPRITESIZE) + xx];
 						}
 					}
 					xpixelOffset++;
 					xPixelPos = xpixelOffset * SPRITESIZE;
 					yPixelPos = ypixelOffset * SPRITESIZE;
 					break;
-				case 1:
-					System.out.println("1");
+				case SpriteID.ROCKS:
 					for (int xx = 0; xx < SPRITESIZE; xx++) {
 						for (int yy = 0; yy < SPRITESIZE; yy++) {
-							tiles[(xx + xPixelPos) + (yy + yPixelPos) * size] = Sprite.rocks.pixels[(yy * SPRITESIZE) + xx];
+							tiles[((yPixelPos * rowWidth) + (yy * rowWidth)) + (xx + xPixelPos)] = Sprite.rocks.pixels[(yy * SPRITESIZE) + xx];
 						}
 					}
 					xpixelOffset++;
 					xPixelPos = xpixelOffset * SPRITESIZE;
 					yPixelPos = ypixelOffset * SPRITESIZE;
 					break;
-				case 2:
-					System.out.println("2");
+				case SpriteID.FLOWERS:
 					for (int xx = 0; xx < SPRITESIZE; xx++) {
 						for (int yy = 0; yy < SPRITESIZE; yy++) {
-							tiles[(xx + xPixelPos) + (yy + yPixelPos) * size] = Sprite.flowers.pixels[(yy * SPRITESIZE) + xx];
+							tiles[((yPixelPos * rowWidth) + (yy * rowWidth)) + (xx + xPixelPos)] = Sprite.flowers.pixels[(yy * SPRITESIZE) + xx];
 						}
 					}
 					xpixelOffset++;
 					xPixelPos = xpixelOffset * SPRITESIZE;
 					yPixelPos = ypixelOffset * SPRITESIZE;
 					break;
-				case 3:
-					System.out.println("3");
+				case SpriteID.GRASS:
 					for (int xx = 0; xx < SPRITESIZE; xx++) {
 						for (int yy = 0; yy < SPRITESIZE; yy++) {
-							tiles[(xx + xPixelPos) + (yy + yPixelPos) * size] = Sprite.grass.pixels[(yy * SPRITESIZE) + xx];
+							tiles[((yPixelPos * rowWidth) + (yy * rowWidth)) + (xx + xPixelPos)] = Sprite.grass.pixels[(yy * SPRITESIZE) + xx];
 						}
 					}
 					xpixelOffset++;

@@ -5,6 +5,7 @@ public class Player {
 	public int attack;
 	public int velocity;
 	public int xPos, yPos;
+	public LevelID currentLevel;
 	
 	private GameInput playerInput;
 	
@@ -13,6 +14,7 @@ public class Player {
 		this.attack = 100;
 		this.velocity = 5;
 		this.playerInput = input;
+		this.currentLevel = LevelID.FLOWERFIELD; // Default level
 	}
 	
 	public void movePlayer(GameScreen screen) {
