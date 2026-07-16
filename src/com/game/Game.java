@@ -1,116 +1,104 @@
 package com.game;
 
-import java.awt.BorderLayout;
-import java.awt.Canvas;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.image.BufferStrategy;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
+import org.lwjgl.glfw.*;
+import org.lwjgl.opengl.*;
+import org.lwjgl.system.*;
 
-import javax.swing.JFrame;
+import java.nio.*;
 
-public class Game extends Canvas implements Runnable {
-	// Create an image object to create data to be passed into the window to render
-	// something
-	private BufferedImage image = new BufferedImage(windowWidth, windowHeight, BufferedImage.TYPE_INT_RGB);
-	// Create pixels to obtain data that will be used to render pixels onto the
-	// screen (pixels will act as data)
-	private int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
-	private boolean running = false;
-	private GameScreen screen = new GameScreen(windowWidth, windowHeight);
-	private static GameInput gameInput = new GameInput();
+import static org.lwjgl.glfw.Callbacks.*;
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.system.MemoryStack.*;
+import static org.lwjgl.system.MemoryUtil.*;
 
-	public static final int windowHeight = 960;
-	public static final int windowWidth = 960;
-	public static Player player = new Player(gameInput);
 
-	public void start() {
-		running = true;
-		new Thread(this).start();
-	}
-
-	public void stop() {
-		running = false;
-	}
+public class Game  {
+	private long window;
 
 	public void run() {
-		final double fps = 60.0;
-		final double nanoSeconds = 1000000000.0;
-		long timer = System.currentTimeMillis();
-		double tickInterval = nanoSeconds / fps;
-		double currentTime = 0.0;
-		double lastTime = System.nanoTime();
-		double delta = 0.0;
-		int frames = 0;
-		int fpsTicks = 0;
-		while (running) {
-			currentTime = System.nanoTime();
-			delta += (currentTime - lastTime) / tickInterval;
-			lastTime = currentTime;
-			if (delta >= 1) {
-				delta--;
-				tick();
-				player.movePlayer(screen);
-				fpsTicks++;
-			}
-			render();
-			frames++;
+		init();
+		loop();
 
-			if (System.currentTimeMillis() - timer > 1000) {
-				timer += 1000;
-				System.out.println(fpsTicks + " fps, " + frames + " ups");
-				frames = 0;
-				fpsTicks = 0;
-			}
-		}
+		glfwFreeCallbacks(window);
+		glfwDestroyWindow(window);
+
+		glfwTerminate();
+		glfwSetErrorCallback(null).free();
 	}
 
-	int tickCount;
+	public void init() {
+		GLFWErrorCallback.createPrint(System.err).set();
 
-	public void tick() {
-		tickCount++;
+		if (!glfwInit()) {
+			throw new IllegalStateException("Unable to initialize GLFW");
+		}
+
+		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+
+		window = glfwCreateWindow(960, 960, "Bullet Hell", NULL, NULL);
+		if (window == NULL) {
+			throw new RuntimeException("Failed to create the GLFW window");
+		}
+
+		window = glfwCreateWindow(960, 960, "Bullet Hell", NULL, NULL);
+		if(window == NULL) {
+			throw new RuntimeException("Failed to create window");
+		}
+
+		glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
+			if(key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
+				glfwSetWindowShouldClose(window, true);
+			}
+		});
+
+		try( MemoryStack stack = stackPush()) {
+			IntBuffer pWidth = stack.mallocInt(1);
+			IntBuffer pHeight = stack.mallocInt(1);
+
+			glfwGetWindowSize(window, pWidth, pHeight);
+
+			GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+			glfwSetWindowPos(
+				window,
+				(vidmode.width() - pWidth.get(0)) / 2,
+				(vidmode.height() - pHeight.get(0)) / 2 
+			);
+		}
+
+		glfwMakeContextCurrent(window);
+		glfwSwapInterval(1);
+
+		glfwShowWindow(window);
 	}
 
-	public void render() {
-		BufferStrategy bs = getBufferStrategy();
-		if (bs == null) {
-			createBufferStrategy(3);
-			return;
+	public void loop() {
+		GL.createCapabilities();
+
+		glClearColor(0.4f, 0.4f, 1.0f, 1.0f);
+
+		Shader tile = null;
+		try {
+			tile = new Shader("res/shader/tile.vs", "res/shader/tile.fs", ShapeType.SQUARE);
+		} catch(Exception e) {
+			e.printStackTrace();
+			System.exit(1);
 		}
 
-		// ------------------ Draw Here ------------------//
-		screen.renderScreen(player);
-		for (int i = 0; i < pixels.length; i++) {
-			pixels[i] = screen.pixels[i];
-		}
-		// ----------------------------------------------//
+		while(!glfwWindowShouldClose(window)) {
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		Graphics graphics = bs.getDrawGraphics();
-		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
-		graphics.dispose();
-		bs.show();
+			tile.bind();
+
+			glfwSwapBuffers(window);
+
+			glfwPollEvents();
+		}
+		tile.cleanup();
 	}
 
 	public static void main(String[] args) {
-		Game game = new Game();
-		game.setPreferredSize(new Dimension(windowWidth, windowHeight));
-		JFrame frame = new JFrame("Untitled");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setLayout(new BorderLayout());
-		frame.add(game);
-		frame.pack();
-		frame.setResizable(false);
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
-
-		game.addKeyListener(gameInput);
-		game.requestFocus();
-		game.start();
+		new Game().run();
 	}
 }
-/*
- * for (int ii = 0; ii < Level.flowerField.tileIDs.length; ii++) {
- * System.out.print(Level.flowerField.tileIDs[ii]);
- * }
- */
