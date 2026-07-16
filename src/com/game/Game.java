@@ -78,18 +78,14 @@ public class Game  {
 
 		glClearColor(0.4f, 0.4f, 1.0f, 1.0f);
 
-		Shader tile = null;
-		try {
-			tile = new Shader("res/shader/tile.vs", "res/shader/tile.fs", ShapeType.SQUARE);
-		} catch(Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-
+		// ---------------Shader objects--------------- //
+		Shader tile = Shader.createShader("/shaders/tile.vs", "/shaders/tile.fs", ShapeType.SQUARE);
+		//tile.changeColor(0.0f, 0.0f, 0.0f);
+		// --------------------------------------------- //
 		while(!glfwWindowShouldClose(window)) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			tile.bind();
+			tile.draw();
 
 			glfwSwapBuffers(window);
 
