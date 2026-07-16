@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Bullet_Hell" default="compile" basedir=".">
+
+    <property name="src.dir" value="src" />
+    <property name="res.dir" value="res" />
+    <property name="lib.dir" value="lib" />
+    
+    <property name="bin.dir" value="bin" />
+
+    <path id="lwjgl.classpath">
+        <fileset dir="${lib.dir}">
+            <include name="**/*.jar" />
+        </fileset>
+    </path>
+
+    <target name="init">
+        <echo message="Initializing build directories..." />
+        <mkdir dir="${bin.dir}" />
+    </target>
+
+    <target name="clean">
+        <echo message="Cleaning old compiled classes..." />
+        <delete dir="${bin.dir}" />
+    </target>
+
+    <target name="compile" depends="init">
+        <echo message="Compiling Java source files..." />
+        <javac srcdir="${src.dir}" 
+               destdir="${bin.dir}" 
+               includeantruntime="false"
+               classpathref="lwjgl.classpath"
+               debug="true"
+               debuglevel="lines,vars,source" />
+    </target>
+
+    <target name="run" depends="compile">
+        <echo message="Launching game..." />
+        <java classname="com.game.Game" fork="true" failonerror="true">
+            <jvmarg value="--enable-native-access=ALL-UNNAMED" />
+            <jvmarg value="--add-opens=java.base/java.nio=ALL-UNNAMED" />
+            <jvmarg value="-Dorg.lwjgl.util.NoChecks=true" /> <classpath>
+                <pathelement path="${bin.dir}" />
+                <path refid="lwjgl.classpath" />
+            </classpath>
+            <classpath>
+                <pathelement path="${res.dir}" />
+            </classpath>
+        </java>
+    </target>
+
+    <target name="debug" depends="compile">
+        <echo message="Launching game in debug mode... Waiting for debugger to attach on port 5005..." />
+        <java classname="com.game.Game" fork="true" failonerror="true">
+            <jvmarg value="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005" />
+            
+            <jvmarg value="-Dorg.lwjgl.util.Debug=true" />
+            
+            <jvmarg value="--enable-native-access=ALL-UNNAMED" />
+            <jvmarg value="--add-opens=java.base/java.nio=ALL-UNNAMED" />
+            
+            <classpath>
+                <pathelement path="${bin.dir}" />
+                <path refid="lwjgl.classpath" />
+            </classpath>
+            <classpath>
+                <pathelement path="${res.dir}" />
+            </classpath>
+        </java>
+    </target>
+
+</project>
