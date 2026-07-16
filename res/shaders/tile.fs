@@ -1,9 +1,12 @@
 #version 460 core
 
-in vec3 color;
+out vec4 FragColor;
 
-out vec3 FragColor;
+in vec2 atileTex;
+
+uniform vec3 tileColor;
+uniform sampler2D tileTexture; 
 
 void main() {
-  FragColor = vec4(color, 1.0f);
+  FragColor = texture(tileTexture, atileTex);
 }
