@@ -38,12 +38,11 @@
         <java classname="com.game.Game" fork="true" failonerror="true">
             <jvmarg value="--enable-native-access=ALL-UNNAMED" />
             <jvmarg value="--add-opens=java.base/java.nio=ALL-UNNAMED" />
-            <jvmarg value="-Dorg.lwjgl.util.NoChecks=true" /> <classpath>
-                <pathelement path="${bin.dir}" />
-                <path refid="lwjgl.classpath" />
-            </classpath>
+            <jvmarg value="-Dorg.lwjgl.util.NoChecks=true" /> 
             <classpath>
-                <pathelement path="${res.dir}" />
+                <pathelement path="${bin.dir}" />
+                <pathelement path="${res.dir}" /> 
+                <path refid="lwjgl.classpath" />
             </classpath>
         </java>
     </target>
@@ -52,18 +51,14 @@
         <echo message="Launching game in debug mode... Waiting for debugger to attach on port 5005..." />
         <java classname="com.game.Game" fork="true" failonerror="true">
             <jvmarg value="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005" />
-            
             <jvmarg value="-Dorg.lwjgl.util.Debug=true" />
-            
             <jvmarg value="--enable-native-access=ALL-UNNAMED" />
             <jvmarg value="--add-opens=java.base/java.nio=ALL-UNNAMED" />
             
             <classpath>
                 <pathelement path="${bin.dir}" />
+                <pathelement path="${res.dir}" /> 
                 <path refid="lwjgl.classpath" />
-            </classpath>
-            <classpath>
-                <pathelement path="${res.dir}" />
             </classpath>
         </java>
     </target>
