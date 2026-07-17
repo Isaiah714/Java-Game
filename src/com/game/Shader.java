@@ -30,7 +30,7 @@ class Shape {
         0.5f,  0.5f, 0.0f,   1.0f, 1.0f,
         0.5f, -0.5f, 0.0f,   1.0f, 0.0f,
        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f,
-       -0.5f,  0.5f, 0.0f,    0.0f, 0.1f
+       -0.5f,  0.5f, 0.0f,    0.0f, 1.0f
       };
       int[] si = 
       {
@@ -93,9 +93,9 @@ public class Shader extends Shape {
   private final int shaderProgram;
   private int vertexShader;
   private int fragmentShader;
+  private Texture texture;
 
-  public Shader(String vPath, String fPath, ShapeType shape) throws Exception {
-
+  public Shader(String vPath, String fPath, String tPath, ShapeType shape) throws Exception {
     vertexShader = createShader(loadShaderSource(vPath), GL46.GL_VERTEX_SHADER);
     fragmentShader = createShader(loadShaderSource(fPath), GL46.GL_FRAGMENT_SHADER);
     shaderProgram = GL46.glCreateProgram();
@@ -112,6 +112,10 @@ public class Shader extends Shape {
     }
 
     createShapeData(shape);
+
+    this.texture = new Texture(tPath);
+    GL46.glActiveTexture(GL46.GL_TEXTURE0);
+    GL46.glBindTexture(GL46.GL_TEXTURE_2D, this.texture.ID);
 
     //GL46.glDetachShader(shaderProgram, vertexShader);
     //GL46.glDetachShader(shaderProgram, fragmentShader);
@@ -131,7 +135,6 @@ public class Shader extends Shape {
       throw new Exception("Error compiling shader code: " +
                                         GL46.glGetShaderInfoLog(shaderID, 1024));
     }
-    
     return shaderID;
   }
 
@@ -173,10 +176,10 @@ public class Shader extends Shape {
     GL46.glDrawElements(GL46.GL_TRIANGLES, 6, GL46.GL_UNSIGNED_INT, 0);
   }
 
-  public static Shader createShader(String vertexPath, String fragementPath, ShapeType type) {
+  public static Shader createShader(String vertexPath, String fragementPath, String texturePath, ShapeType type) {
     Shader shader = null;
     try {
-      shader = new Shader(vertexPath, fragementPath, type);
+      shader = new Shader(vertexPath, fragementPath, texturePath, type);
     } catch(Exception e) {
       e.printStackTrace();
       System.exit(1);
