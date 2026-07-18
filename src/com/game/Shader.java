@@ -1,5 +1,7 @@
 package com.game;
 
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.lwjgl.opengl.GL46;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -15,15 +17,17 @@ enum ShapeType {
 }
 
 class Shape {
-  protected float[] vertices;
+  protected Vector3f position;
+  protected Vector3f color;
+  protected float scale;
   protected int VAO;
-  protected int VBO;
-  protected int EBO;
-  protected ShapeType shape;
+
+  private int VBO;
+  private int EBO;
+  
 
   protected void createShapeData(ShapeType sh) {
-    this.shape = sh;
-    switch(this.shape) {
+    switch(sh) {
       case ShapeType.SQUARE:
       float[] sv = 
       {
@@ -117,8 +121,8 @@ public class Shader extends Shape {
     GL46.glActiveTexture(GL46.GL_TEXTURE0);
     GL46.glBindTexture(GL46.GL_TEXTURE_2D, this.texture.ID);
 
-    //GL46.glDetachShader(shaderProgram, vertexShader);
-    //GL46.glDetachShader(shaderProgram, fragmentShader);
+    GL46.glDetachShader(shaderProgram, vertexShader);
+    GL46.glDetachShader(shaderProgram, fragmentShader);
     GL46.glDeleteShader(vertexShader);
     GL46.glDeleteShader(fragmentShader);
   }
@@ -160,19 +164,34 @@ public class Shader extends Shape {
     }
   }
 
-  public void changeColor(float red, float blue, float green) {
-    int shaderLocation = GL46.glGetUniformLocation(shaderProgram, "tileColor");
-    GL46.glUniform3f(shaderLocation, red, blue, green);
+  public void scale(float s) {
+    int shaderLocation = GL46.glGetUniformLocation(shaderProgram, "hasScale");
+    GL46.glUniform1i(shaderLocation, 1);
+
+    shaderLocation = GL46.glGetUniformLocation(shaderProgram, "scale");
+    GL46.glUniform1f(shaderLocation, s);
   }
 
-  public void changePos(float x, float y) {
-    int shaderLocation = GL46.glGetUniformLocation(shaderProgram, "position");
-    GL46.glUniform3f(shaderLocation, x, y, 0);
+  public void changeColor(Vector3f color) {
+    int shaderLocation = GL46.glGetUniformLocation(shaderProgram, "hasColor");
+    GL46.glUniform1i(shaderLocation, 1);
+
+    shaderLocation = GL46.glGetUniformLocation(shaderProgram, "color");
+    GL46.glUniform3f(shaderLocation, color.x, color.y, color.z);
+  }
+
+  public void changePos(Vector2f pos) {
+    int shaderLocation = GL46.glGetUniformLocation(shaderProgram, "diffPos");
+    GL46.glUniform1i(shaderLocation, 1);
+
+    shaderLocation = GL46.glGetUniformLocation(shaderLocation, "position");
+    GL46.glUniform2f(shaderLocation, pos.x, pos.y);
   }
 
   public void draw() {
     GL46.glBindVertexArray(VAO);
     GL46.glUseProgram(shaderProgram);
+
     GL46.glDrawElements(GL46.GL_TRIANGLES, 6, GL46.GL_UNSIGNED_INT, 0);
   }
 
