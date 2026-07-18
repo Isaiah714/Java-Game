@@ -26,15 +26,15 @@ class Shape {
   private int EBO;
   
 
-  protected void createShapeData(ShapeType sh) {
+  protected void createShapeData(ShapeType sh, TextureRegion region) {
     switch(sh) {
       case ShapeType.SQUARE:
       float[] sv = 
       {
-        0.5f,  0.5f, 0.0f,   1.0f, 1.0f,
-        0.5f, -0.5f, 0.0f,   1.0f, 0.0f,
-       -0.5f, -0.5f, 0.0f,   0.0f, 0.0f,
-       -0.5f,  0.5f, 0.0f,    0.0f, 1.0f
+        0.5f,  0.5f, 0.0f,   region.u1, region.v2,
+        0.5f, -0.5f, 0.0f,   region.u2, region.v2,
+       -0.5f, -0.5f, 0.0f,   region.u2, region.v1,
+       -0.5f,  0.5f, 0.0f,    region.u1, region.v1
       };
       int[] si = 
       {
@@ -115,7 +115,7 @@ public class Shader extends Shape {
       throw new Exception("Error linking shader program: " + GL46.glGetProgramInfoLog(shaderProgram, 1024));
     }
 
-    createShapeData(shape);
+    createShapeData(shape, this.texture.region);
 
     this.texture = new Texture(tPath);
     GL46.glActiveTexture(GL46.GL_TEXTURE0);
@@ -191,7 +191,6 @@ public class Shader extends Shape {
   public void draw() {
     GL46.glBindVertexArray(VAO);
     GL46.glUseProgram(shaderProgram);
-
     GL46.glDrawElements(GL46.GL_TRIANGLES, 6, GL46.GL_UNSIGNED_INT, 0);
   }
 
