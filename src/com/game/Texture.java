@@ -7,16 +7,37 @@ import java.nio.IntBuffer;
 
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
+import org.joml.Vector2i;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL46;
 
-//https://ahbejarano.gitbook.io/lwjglgamedev/chapter-07
+class TextureRegion {
+  public float u1, u2, v1, v2;
+
+  public TextureRegion(Vector2i spriteSize, Vector2i sheetSize, Vector2i sprite) throws Exception {
+    // Converting pixel position to UV space (UV space ranges 0-1)
+    this.u1 = (float) (sprite.x * spriteSize.x) / sheetSize.x; // sprite.x is pixel position for x
+    this.u2 = (float) (sprite.y * spriteSize.y) / sheetSize.y; // spirte.y is pixel position for y
+    this.v1 = this.u1 + ((float) spriteSize.x / sheetSize.x);  // spriteSize.x sheetSize.x is width
+    this.v2 = this.v2 + ((float) sheetSize.y / sheetSize.y);   // spriteSize.y sheetSize.y is height
+  }
+}
 
 public class Texture {
+  private final int SHEET_SIZE = 160;
+  private final int SPRITE_SIZE = 16;
+  private Vector2i spriteSize;
+  private Vector2i sheetSize;
+  private Vector2i sprite;
   private String texturePath;
+
   public int ID;
-  
+  public TextureRegion region;
+
   public Texture(String tPath) throws Exception {
+    this.spriteSize = new Vector2i(SPRITE_SIZE, SPRITE_SIZE);
+    this.sheetSize = new Vector2i(SHEET_SIZE, SHEET_SIZE);
+    this.sprite = new Vector2i(0, 0); // default positon (starting point)
     this.texturePath = tPath;
     ByteBuffer imageBuffer = ioResourceToByteBuffer(tPath);
     try(MemoryStack stack = MemoryStack.stackPush()) {
@@ -32,7 +53,7 @@ public class Texture {
       }
 
       int width = w.get(0);
-      int height = w.get(0);
+      int height = h.get(0);
 
       generateTexture(width, height, buf);
 
@@ -59,6 +80,8 @@ public class Texture {
     GL46.glTexParameteri(GL46.GL_TEXTURE_2D, GL46.GL_TEXTURE_MAG_FILTER, GL46.GL_LINEAR);
     GL46.glTexImage2D(GL46.GL_TEXTURE_2D, 0, GL46.GL_RGBA, w, h, 0, GL46.GL_RGBA, GL46.GL_UNSIGNED_BYTE, b);
     GL46.glGenerateMipmap(GL46.GL_TEXTURE_2D);
+
+
   }
 
   private ByteBuffer ioResourceToByteBuffer(String resPath) throws IOException {
