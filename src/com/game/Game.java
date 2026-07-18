@@ -12,21 +12,8 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
-class FilePath {
-	public String vPath;
-	public String fPath;
-	public String tPath;
-
-	public FilePath(String vertPath, String fragPath, String texPath) {
-		this.vPath = vertPath;
-		this.fPath = fragPath;
-		this.tPath = texPath;
-	}
-}
-
 public class Game  {
 	private long window;
-	private FilePath tile;
 
 	public void run() {
 		init();
@@ -40,7 +27,6 @@ public class Game  {
 	}
 
 	public void init() {
-		this.tile = new FilePath("/shaders/tile.vs", "/shaders/tile.fs", "/textures/tiles.jpg");
 		GLFWErrorCallback.createPrint(System.err).set();
 
 		if (!glfwInit()) {
@@ -92,19 +78,14 @@ public class Game  {
 		glClearColor(0.4f, 0.4f, 1.0f, 1.0f);
 
 		// ---------------Shader objects--------------- //
-		Shader tile = Shader.createShader(this.tile.vPath, this.tile.fPath, this.tile.tPath, ShapeType.SQUARE);
-		//tile.changeColor(0.0f, 0.0f, 0.0f);
 		// --------------------------------------------- //
 		while(!glfwWindowShouldClose(window)) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			tile.draw();
 
 			glfwSwapBuffers(window);
 
 			glfwPollEvents();
 		}
-		tile.cleanup();
 	}
 
 	public static void main(String[] args) {
