@@ -1,5 +1,6 @@
 package com.game;
 
+import org.joml.Vector2i; // Temporary Import
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
@@ -14,6 +15,7 @@ import static org.lwjgl.system.MemoryUtil.*;
 
 public class Game  {
 	private long window;
+	private FilePath tile;
 
 	public void run() {
 		init();
@@ -27,6 +29,7 @@ public class Game  {
 	}
 
 	public void init() {
+		this.tile = new FilePath("/shaders/tile.vs", "/shaders/tile.fs", "/sheets/FlowerfieldSheet.png", "/levels/flower_field.txt");
 		GLFWErrorCallback.createPrint(System.err).set();
 
 		if (!glfwInit()) {
@@ -77,15 +80,25 @@ public class Game  {
 
 		glClearColor(0.4f, 0.4f, 1.0f, 1.0f);
 
-		// ---------------Shader objects--------------- //
-		// --------------------------------------------- //
+		//=---------------Shader objects---------------=//
+		Vector2i sprite = new Vector2i(3, 0);
+		Shader tile = Shader.createShader(sprite, this.tile.vertex, this.tile.fragment, this.tile.textureSheet, ShapeType.SQUARE);
+		//=---------------------------------------------=//
 		while(!glfwWindowShouldClose(window)) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			//=-Render Here-=//
+
+			tile.draw();
+			tile.scale(0.15f);
+
+			//=--------------=//
 
 			glfwSwapBuffers(window);
 
 			glfwPollEvents();
 		}
+		tile.cleanup();
 	}
 
 	public static void main(String[] args) {
