@@ -1,6 +1,7 @@
 package com.game;
 
 import org.joml.Vector2f;
+import org.joml.Vector2i;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL46;
 import java.io.BufferedReader;
@@ -99,10 +100,14 @@ public class Shader extends Shape {
   private int fragmentShader;
   private Texture texture;
 
-  public Shader(String vPath, String fPath, String tPath, ShapeType shape) throws Exception {
+  public Vector2i sprite;
+ 
+  public Shader(Vector2i sprite, String vPath, String fPath, String tPath, ShapeType shape) throws Exception {
     vertexShader = createShader(loadShaderSource(vPath), GL46.GL_VERTEX_SHADER);
     fragmentShader = createShader(loadShaderSource(fPath), GL46.GL_FRAGMENT_SHADER);
     shaderProgram = GL46.glCreateProgram();
+
+    this.sprite = sprite;
 
     if(shaderProgram == 0) {
       throw new Exception("Couldn't create shader program");
@@ -115,9 +120,10 @@ public class Shader extends Shape {
       throw new Exception("Error linking shader program: " + GL46.glGetProgramInfoLog(shaderProgram, 1024));
     }
 
+    this.texture = new Texture(tPath, this.sprite);
+
     createShapeData(shape, this.texture.region);
 
-    this.texture = new Texture(tPath);
     GL46.glActiveTexture(GL46.GL_TEXTURE0);
     GL46.glBindTexture(GL46.GL_TEXTURE_2D, this.texture.ID);
 
@@ -194,10 +200,10 @@ public class Shader extends Shape {
     GL46.glDrawElements(GL46.GL_TRIANGLES, 6, GL46.GL_UNSIGNED_INT, 0);
   }
 
-  public static Shader createShader(String vertexPath, String fragementPath, String texturePath, ShapeType type) {
+  public static Shader createShader(Vector2i sprite, String vertexPath, String fragementPath, String texturePath, ShapeType type) {
     Shader shader = null;
     try {
-      shader = new Shader(vertexPath, fragementPath, texturePath, type);
+      shader = new Shader(sprite, vertexPath, fragementPath, texturePath, type);
     } catch(Exception e) {
       e.printStackTrace();
       System.exit(1);
