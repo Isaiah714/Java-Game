@@ -1,6 +1,5 @@
 package com.game;
 
-import org.joml.Vector2i; // Temporary Import
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
@@ -13,9 +12,13 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
+class WindowSize {
+	public static final int WIDTH = 960;
+	public static final int HEIGHT = 960;
+}
+
 public class Game  {
 	private long window;
-	private FilePath tile;
 
 	public void run() {
 		init();
@@ -29,7 +32,6 @@ public class Game  {
 	}
 
 	public void init() {
-		this.tile = new FilePath("/shaders/tile.vs", "/shaders/tile.fs", "/sheets/FlowerfieldSheet.png", "/levels/flower_field.txt");
 		GLFWErrorCallback.createPrint(System.err).set();
 
 		if (!glfwInit()) {
@@ -38,11 +40,6 @@ public class Game  {
 
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-
-		window = glfwCreateWindow(960, 960, "Bullet Hell", NULL, NULL);
-		if (window == NULL) {
-			throw new RuntimeException("Failed to create the GLFW window");
-		}
 
 		window = glfwCreateWindow(960, 960, "Bullet Hell", NULL, NULL);
 		if(window == NULL) {
@@ -80,25 +77,21 @@ public class Game  {
 
 		glClearColor(0.4f, 0.4f, 1.0f, 1.0f);
 
-		//=---------------Shader objects---------------=//
-		Vector2i sprite = new Vector2i(3, 0);
-		Shader tile = Shader.createShader(sprite, this.tile.vertex, this.tile.fragment, this.tile.textureSheet, ShapeType.SQUARE);
+		//=----------------Game objects----------------=//
+		Player player = new Player(window);
+		Scene flowerScene = new Scene(LevelArea.FLOWERLAND, player);
 		//=---------------------------------------------=//
 		while(!glfwWindowShouldClose(window)) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			//=-Render Here-=//
-
-			tile.draw();
-			tile.scale(0.15f);
-
+			flowerScene.renderScene();
 			//=--------------=//
 
 			glfwSwapBuffers(window);
 
 			glfwPollEvents();
 		}
-		tile.cleanup();
 	}
 
 	public static void main(String[] args) {
