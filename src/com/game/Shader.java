@@ -1,14 +1,17 @@
 package com.game;
 
+import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL46;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.FloatBuffer;
 import java.util.stream.Collectors;
 
 enum ShapeType {
@@ -18,6 +21,7 @@ enum ShapeType {
 }
 
 class Shape {
+  protected ShapeType shapeT;
   protected Vector3f position;
   protected Vector3f color;
   protected float scale;
@@ -27,9 +31,10 @@ class Shape {
   private int EBO;
   
 
-  protected void createShapeData(ShapeType sh, TextureRegion region) {
+  protected void createShapeData(ShapeType sh, Texture region) {
     switch(sh) {
       case ShapeType.SQUARE:
+      shapeT = sh;
       float[] sv = 
       {
         0.5f,  0.5f, 0.0f,   region.u1, region.v2,
@@ -95,6 +100,7 @@ class Shape {
 }
 
 public class Shader extends Shape {
+  private final FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
   private final int shaderProgram;
   private int vertexShader;
   private int fragmentShader;
@@ -102,7 +108,7 @@ public class Shader extends Shape {
 
   public Vector2i sprite;
  
-  public Shader(Vector2i sprite, String vPath, String fPath, String tPath, ShapeType shape) throws Exception {
+  private Shader(Vector2i sprite, String vPath, String fPath, String tPath, ShapeType shape) throws Exception {
     vertexShader = createShader(loadShaderSource(vPath), GL46.GL_VERTEX_SHADER);
     fragmentShader = createShader(loadShaderSource(fPath), GL46.GL_FRAGMENT_SHADER);
     shaderProgram = GL46.glCreateProgram();
@@ -122,7 +128,7 @@ public class Shader extends Shape {
 
     this.texture = new Texture(tPath, this.sprite);
 
-    createShapeData(shape, this.texture.region);
+    createShapeData(shape, this.texture);
 
     GL46.glActiveTexture(GL46.GL_TEXTURE0);
     GL46.glBindTexture(GL46.GL_TEXTURE_2D, this.texture.ID);
@@ -170,6 +176,15 @@ public class Shader extends Shape {
     }
   }
 
+  public void obtainSprite(Vector2i spriteIndex) {
+    try {
+      this.texture.updateRegion(this.texture.spriteSize, this.texture.sheetSize, spriteIndex);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    createShapeData(shapeT, this.texture);
+  }
+
   public void scale(float s) {
     int shaderLocation = GL46.glGetUniformLocation(shaderProgram, "hasScale");
     GL46.glUniform1i(shaderLocation, 1);
@@ -186,11 +201,17 @@ public class Shader extends Shape {
     GL46.glUniform3f(shaderLocation, color.x, color.y, color.z);
   }
 
-  public void changePos(Vector2f pos) {
-    int shaderLocation = GL46.glGetUniformLocation(shaderProgram, "diffPos");
+  public void changePos(Vector2f pos, Camera camera) {
+    GL46.glUseProgram(shaderProgram);
+
+    Matrix4f matrix = new Matrix4f(camera.getProjectionMatrix()).mul(camera.getViewMatrix());
+    int shaderLocation = GL46.glGetUniformLocation(shaderProgram, "viewProj");
+    GL46.glUniformMatrix4fv(shaderLocation, false, matrix.get(matrixBuffer));
+
+    shaderLocation = GL46.glGetUniformLocation(shaderProgram, "diffPos");
     GL46.glUniform1i(shaderLocation, 1);
 
-    shaderLocation = GL46.glGetUniformLocation(shaderLocation, "position");
+    shaderLocation = GL46.glGetUniformLocation(shaderProgram, "position");
     GL46.glUniform2f(shaderLocation, pos.x, pos.y);
   }
 
