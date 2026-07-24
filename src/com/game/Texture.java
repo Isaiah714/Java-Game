@@ -14,7 +14,7 @@ import org.lwjgl.opengl.GL46;
 class TextureRegion {
   public float u1, u2, v1, v2;
 
-  public TextureRegion(Vector2i spriteSize, Vector2i sheetSize, Vector2i sprite) throws Exception {
+  public void updateRegion(Vector2i spriteSize, Vector2i sheetSize, Vector2i sprite) throws Exception {
     // Converting pixel position to UV space (UV space ranges 0-1)
     this.u1 = (float) (sprite.x * spriteSize.x) / sheetSize.x; // sprite.x is pixel position for x
     this.v1 = (float) (sprite.y * spriteSize.y) / sheetSize.y; // spirte.y is pixel position for y
@@ -23,16 +23,15 @@ class TextureRegion {
   }
 }
 
-public class Texture {
+public class Texture extends TextureRegion {
   private final int SHEET_SIZE = 160;
   private final int SPRITE_SIZE = 16;
-  private Vector2i spriteSize;
-  private Vector2i sheetSize;
   private Vector2i sprite;
   private String texturePath;
 
   public int ID;
-  public TextureRegion region;
+  public Vector2i spriteSize;
+  public Vector2i sheetSize;
 
   public Texture(String tPath, Vector2i sprite) throws Exception {
     this.spriteSize = new Vector2i(SPRITE_SIZE, SPRITE_SIZE);
@@ -40,7 +39,7 @@ public class Texture {
     this.sprite = sprite;
     this.texturePath = tPath;
 
-    region = new TextureRegion(this.spriteSize, this.sheetSize, this.sprite);
+    updateRegion(this.spriteSize, this.sheetSize, this.sprite);
 
     ByteBuffer imageBuffer = ioResourceToByteBuffer(tPath);
     try(MemoryStack stack = MemoryStack.stackPush()) {
