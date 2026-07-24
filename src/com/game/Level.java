@@ -6,6 +6,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Vector;
 
+import org.joml.Vector2f;
+import org.joml.Vector2i;
+
 enum TileID {
   SMALLFLOWERS,
   ROCKS,
@@ -15,14 +18,14 @@ enum TileID {
 
 enum LevelArea {
   FLOWERLAND,
-  FORESTLAND,
+  /*FORESTLAND,
   DESERTLAND,
   TROPICALLAND,
   ICELAND,
   BLUEDUNGEON,
   PURPLEDUNGEON,
   REDDUNGEON,
-  FINALDUNGEON
+  FINALDUNGEON*/
 }
 
 class FilePath {
@@ -40,16 +43,160 @@ class FilePath {
 }
 
 public class Level {
+  private final float TILESIZE = 16.0f;
   private LevelArea area;
   private FilePath path;
   private Vector<TileID> tileIDs;
+  private Vector2i sprite;
 
-  public Level(String sheetPath, String mapPath) {
+  public Shader shader;
+
+  public Level(LevelArea area, Camera camera) {
+    this.tileIDs = new Vector<TileID>();
+    String sheetPath = null;
+    String mapPath = null;
+
+    switch(area) {
+      case LevelArea.FLOWERLAND:
+      sheetPath = "/sheets/FlowerfieldSheet.png";
+      mapPath = "/levels/flower_field.txt";
+      break;
+      /*case LevelArea.FORESTLAND:
+      break;
+      case LevelArea.DESERTLAND:
+      break;
+      case LevelArea.TROPICALLAND:
+      break;
+      case LevelArea.ICELAND:
+      break;
+      case LevelArea.BLUEDUNGEON:
+      break;
+      case LevelArea.PURPLEDUNGEON:
+      break;
+      case LevelArea.REDDUNGEON:
+      break;
+      case LevelArea.FINALDUNGEON:
+      break;*/
+    }
+
+    this.area = area;
+    this.sprite = new Vector2i(0, 0);
     this.path = new FilePath("/shaders/tile.vs",
                                            "/shaders/tile.fs",
-                                           this.path.textureSheet,
-                                           this.path.tileMap);
+                                           sheetPath,
+                                           mapPath);
+
+    this.shader = Shader.createShader(this.sprite,
+                                                            this.path.vertex,
+                                                            this.path.fragment,
+                                                            this.path.textureSheet,
+                                                            ShapeType.SQUARE);
+    
     parseLevel();
+  }
+
+  public void renderMap(Camera camera) {
+    Vector2f tilePos = new Vector2f();
+    TileID ID = null;
+    int mapWidthInTiles = 10;
+
+    for(int ii = 0; ii < this.tileIDs.size(); ii++) {
+      ID = tileIDs.get(ii);
+
+      int column = ii % mapWidthInTiles;
+      int row = ii / mapWidthInTiles;
+
+      tilePos.x = column * TILESIZE;
+      tilePos.y = row * TILESIZE;
+
+      switch(this.area) {
+      case LevelArea.FLOWERLAND:
+        switch(ID) {
+          case TileID.SMALLFLOWERS:
+          this.shader.sprite.x = 0;
+          this.shader.obtainSprite(this.shader.sprite);
+          this.shader.scale(TILESIZE);
+          this.shader.changePos(tilePos, camera);
+          this.shader.draw();
+          break;
+          case TileID.ROCKS:
+          this.shader.sprite.x = 1;
+          this.shader.obtainSprite(this.shader.sprite);
+          this.shader.scale(TILESIZE);
+          this.shader.changePos(tilePos, camera);
+          this.shader.draw();
+          break;
+          case TileID.FLOWERS:
+          this.shader.sprite.x = 2;
+          this.shader.obtainSprite(this.shader.sprite);
+          this.shader.scale(TILESIZE);
+          this.shader.changePos(tilePos, camera);
+          this.shader.draw();
+          break;
+          case TileID.GRASS:
+          this.shader.sprite.x = 3;
+          this.shader.obtainSprite(this.shader.sprite);
+          this.shader.scale(TILESIZE);
+          this.shader.changePos(tilePos, camera);
+          this.shader.draw();
+          break;
+        }
+        break;
+        /*case LevelArea.FORESTLAND:
+        switch(ID) {
+          case TileID.GRASS:
+          this.shader.sprite = new Vector2i(0, 0);
+          break;
+        }
+        break;
+        case LevelArea.DESERTLAND:
+        switch(ID) {
+          case TileID.GRASS:
+          break;
+        }
+        break;
+        case LevelArea.TROPICALLAND:
+        switch(ID) {
+          case TileID.GRASS:
+          break;
+        }
+        break;
+        case LevelArea.ICELAND:
+        switch(ID) {
+          case TileID.GRASS:
+          break;
+        }
+        break;
+        case LevelArea.BLUEDUNGEON:
+        switch(ID) {
+          case TileID.GRASS:
+          break;
+        }
+        break;
+        case LevelArea.PURPLEDUNGEON:
+        switch(ID) {
+          case TileID.GRASS:
+          break;
+        }
+        break;
+        case LevelArea.REDDUNGEON:
+        switch(ID) {
+          case TileID.GRASS:
+          break;
+        }
+        break;
+        case LevelArea.FINALDUNGEON:
+        switch(ID) {
+          case TileID.GRASS:
+          break;
+        }
+        break;*/
+      }
+    }
+  }
+
+  public void clean() {
+    this.shader.cleanup();
   }
 
   private void parseLevel() {
@@ -93,7 +240,7 @@ public class Level {
         break;
       }
       break;
-      case LevelArea.FORESTLAND:
+      /*case LevelArea.FORESTLAND:
       switch(ID) {
         case 0:
         break;
@@ -140,7 +287,7 @@ public class Level {
         case 0:
         break;
       }
-      break;
+      break;*/
     }
   }
 
