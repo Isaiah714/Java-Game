@@ -16,17 +16,17 @@ uniform bool diffPos;
 uniform vec2 position;
 uniform vec3 color;
 
+uniform mat4 viewProj;
+
 void main() {
 
   currentPos = tilePos;
 
   if(hasScale) currentPos *= scale;
-  //if(hasColor) currentColor = 0;
   if(diffPos) {
-    currentPos += position.x;
-    currentPos += position.y;
+    currentPos.xy += position;
   }
 
-  gl_Position = vec4(currentPos, 1.0f);
+  gl_Position = viewProj * vec4(currentPos, 1.0f);
   atileTex = tileTex;
 }
